@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>육바라밀 실천일기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      color: #4a4a4a;
+      background-color: #faf9f5;
+    }
+
+    .watercolor-bg {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 182, 193, 0.25), transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(173, 216, 230, 0.25), transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(144, 238, 144, 0.2), transparent 50%),
+        radial-gradient(circle at 80% 85%, rgba(255, 239, 150, 0.25), transparent 40%);
+      background-attachment: fixed;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .center-content { justify-content: center; }
+
+    .card {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #5c6bc0;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #7a7a7a;
+      margin-bottom: 2rem;
+    }
+
+    .user-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    input[type="text"] {
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+      font-family: 'Noto Sans KR', sans-serif;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      background: #fff;
+      box-shadow: 0 0 0 2px #a5b4fc;
+    }
+
+    .btn-primary {
+      padding: 1rem;
+      border: none;
+      border-radius: 12px;
+      background: #a5b4fc;
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 1rem;
+    }
+
+    .btn-primary:hover { background: #818cf8; }
+
+    .btn-primary:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+    }
+
+    .btn-text {
+      background: none;
+      border: none;
+      color: #6b7280;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-family: 'Noto Sans KR', sans-serif;
+      margin-top: 1rem;
+    }
+
+    .app-header {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+
+    .app-header h2 {
+      font-size: 1.5rem;
+      color: #374151;
+    }
+
+    .determination-text {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-top: 0.3rem;
+      font-style: italic;
+    }
+
+    .progress {
+      background: rgba(255,255,255,0.7);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 500;
+      color: #4f46e5;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      white-space: nowrap;
+    }
+
+    .quest-grid {
+      width: 100%;
+      max-width: 800px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .paramita-section {
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .paramita-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 1.1rem;
+      color: #4b5563;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid rgba(165, 180, 252, 0.3);
+      padding-bottom: 0.5rem;
+      display: inline-block;
+    }
+
+    .quest-list { list-style: none; }
+
+    .quest-item {
+      padding: 0.8rem;
+      background: #ffffff;
+      margin-bottom: 0.5rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .quest-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .quest-item.completed {
+      background: rgba(255,255,255,0.4);
+      color: #9ca3af;
+      text-decoration: line-through;
+      cursor: default;
+    }
+
+    .quest-item.completed:hover {
+      transform: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .quest-item.completed .status-dot { background: #34d399; }
+
+    .detail-card { max-width: 500px; }
+
+    .instruction {
+      margin-bottom: 2rem;
+      color: #4b5563;
+    }
+
+    .upload-section { margin-bottom: 0.5rem; }
+
+    .upload-label {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: #f3f4f6;
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #6b7280;
+      transition: all 0.3s;
+    }
+
+    .upload-label:hover {
+      border-color: #a5b4fc;
+      color: #4f46e5;
+      background: #eef2ff;
+    }
+
+    .photo-preview {
+      margin-top: 1.5rem;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .photo-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .complete-btn { width: 100%; }
+
+    /* 완료 축하 오버레이 */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(52, 211, 153, 0.95);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      animation: fadeInUp 0.4s ease, fadeOut 0.4s ease 2s forwards;
+      z-index: 999;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+
+    @media (max-width: 600px) {
+      .watercolor-bg { padding: 1rem; }
+      .app-header { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+      .quest-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const QUEST_DATA = [
+      { category: '보시 (나눔)', quests: ['안 쓰는 물건 기부하기', '따뜻한 말 한마디 건네기', '주변 쓰레기 줍기', '작은 간식 나누기', '나의 재능으로 남 돕기'] },
+      { category: '지계 (계율)', quests: ['일회용품 사용 줄이기', '약속 시간 10분 전 도착하기', '부정적인 말 하지 않기', '정해진 시간에 기상하기', '과식하지 않고 소식하기'] },
+      { category: '인욕 (참음)', quests: ['화나는 순간 3초 심호흡하기', '타인의 의견 끝까지 듣기', '불편한 상황에 미소 지어보기', '층간소음/불편함에 관대해지기', '어려운 일 한 번 더 시도하기'] },
+      { category: '정진 (노력)', quests: ['하루 10분 독서하기', '미뤄둔 일 오늘 하나 끝내기', '매일 감사일기 3줄 쓰기', '새로운 것 하나 배우기', '스마트폰 사용 시간 줄이기'] },
+      { category: '선정 (고요)', quests: ['하루 5분 눈 감고 명상하기', '조용히 차 한 잔 마시기', '산책하며 자연 관찰하기', '잠들기 전 스마트폰 안 보기', '내 감정 상태 글로 적어보기'] },
+      { category: '반야 (지혜)', quests: ['좋은 글귀나 경전 읽기', '나의 장단점 객관적으로 보기', '편견 없이 사람 대하기', '오늘 하루를 돌아보며 성찰하기', '내가 가진 것에 감사하기'] },
+    ];
+
+    function Toast({ message, onDone }) {
+      React.useEffect(() => {
+        const t = setTimeout(onDone, 2600);
+        return () => clearTimeout(t);
+      }, []);
+      return <div className="toast">{message}</div>;
+    }
+
+    function App() {
+      const [userInfo, setUserInfo] = useState({ name: '', determination: '' });
+      const [isRegistered, setIsRegistered] = useState(false);
+      const [selectedQuest, setSelectedQuest] = useState(null);
+      const [uploadedPhoto, setUploadedPhoto] = useState(null);
+      const [completedQuests, setCompletedQuests] = useState([]);
+      const [toast, setToast] = useState(null);
+
+      const handleUserSubmit = (e) => {
+        e.preventDefault();
+        if (userInfo.name.trim()) setIsRegistered(true);
+      };
+
+      const handlePhotoUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) setUploadedPhoto(URL.createObjectURL(file));
+      };
+
+      const handleCompleteQuest = () => {
+        if (!completedQuests.includes(selectedQuest)) {
+          setCompletedQuests(prev => [...prev, selectedQuest]);
+        }
+        setSelectedQuest(null);
+        setUploadedPhoto(null);
+        setToast('참 잘하셨습니다! 공덕이 쌓였습니다. 🙏');
+      };
+
+      // 화면 1: 이름 입력
+      if (!isRegistered) {
+        return (
+          <div className="watercolor-bg center-content">
+            {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+            <div className="card">
+              <h1 className="title">☸️ 육바라밀 실천일기</h1>
+              <p className="subtitle">마음을 맑게 하는 30가지 작은 발걸음</p>
+              <form onSubmit={handleUserSubmit} className="user-form">
+                <input
+                  type="text"
+                  placeholder="이름 (또는 법명)을 입력하세요"
+                  value={userInfo.name}
+                  onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="오늘의 다짐을 적어보세요"
+                  value={userInfo.determination}
+                  onChange={(e) => setUserInfo({ ...userInfo, determination: e.target.value })}
+                />
+                <button type="submit" className="btn-primary">수행 시작하기</button>
+              </form>
+            </div>
+          </div>
+        );
+      }
+
+      // 화면 2: 퀘스트 상세 인증
+      if (selectedQuest) {
+        return (
+          <div className="watercolor-bg">
+            {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+            <header className="app-header">
+              <h2>{selectedQuest}</h2>
+              <button className="btn-text" onClick={() => { setSelectedQuest(null); setUploadedPhoto(null); }}>← 목록으로</button>
+            </header>
+            <div className="card detail-card">
+              <p className="instruction">이 수행을 실천하셨나요? 사진을 올려 기록해보세요.</p>
+              <div className="upload-section">
+                <label htmlFor="photo-upload" className="upload-label">
+                  {uploadedPhoto ? '📷 사진 변경하기' : '📷 사진 업로드'}
+                </label>
+                <input
+                  id="photo-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  style={{ display: 'none' }}
+                />
+              </div>
+              {uploadedPhoto && (
+                <div className="photo-preview">
+                  <img src={uploadedPhoto} alt="수행 인증" />
+                </div>
+              )}
+              <button
+                className="btn-primary complete-btn"
+                onClick={handleCompleteQuest}
+                disabled={!uploadedPhoto}
+              >
+                {uploadedPhoto ? '✅ 수행 완료하기' : '사진을 업로드해주세요'}
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      // 화면 3: 퀘스트 목록
+      return (
+        <div className="watercolor-bg">
+          {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+          <header className="app-header">
+            <div>
+              <h2>안녕하세요, {userInfo.name}님 🙏</h2>
+              <p className="determination-text">"{userInfo.determination || '매일매일 조금씩 나아지는 삶'}"</p>
+            </div>
+            <div className="progress">완료: {completedQuests.length} / 30</div>
+          </header>
+          <div className="quest-grid">
+            {QUEST_DATA.map((paramita, idx) => (
+              <div key={idx} className="paramita-section">
+                <h3 className="paramita-title">{paramita.category}</h3>
+                <ul className="quest-list">
+                  {paramita.quests.map((quest, qIdx) => {
+                    const isCompleted = completedQuests.includes(quest);
+                    return (
+                      <li
+                        key={qIdx}
+                        className={`quest-item ${isCompleted ? 'completed' : ''}`}
+                        onClick={() => !isCompleted && setSelectedQuest(quest)}
+                      >
+                        <span className="status-dot"></span>
+                        {quest}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
