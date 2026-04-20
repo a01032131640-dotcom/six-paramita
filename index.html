@@ -1,554 +1,223 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>육바라밀 실천일기</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans KR', sans-serif; color: #4a4a4a; background-color: #faf9f5; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6바라밀: 의식의 입체화</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Pretendard:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --jade-soft: #e0f2f1;
+            --jade-medium: #80cbc4;
+            --jade-deep: #00796b;
+            --accent-pink: #f8bbd0;
+        }
 
-    .watercolor-bg {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 15% 20%, rgba(255,182,193,0.25), transparent 40%),
-        radial-gradient(circle at 85% 30%, rgba(173,216,230,0.25), transparent 45%),
-        radial-gradient(circle at 50% 80%, rgba(144,238,144,0.20), transparent 50%),
-        radial-gradient(circle at 80% 85%, rgba(255,239,150,0.25), transparent 40%);
-      background-attachment: fixed;
-      padding: 2rem;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .center-content { justify-content: center; }
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: var(--bg-color);
+            margin: 0; padding: 0;
+            display: flex; justify-content: center;
+            min-height: 100vh;
+            /* 은은한 수채화 번짐 효과 */
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(128, 203, 196, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(248, 187, 208, 0.1) 0%, transparent 40%);
+        }
 
-    /* 카드 */
-    .card {
-      background: rgba(255,255,255,0.70);
-      backdrop-filter: blur(12px);
-      border-radius: 20px; padding: 2.5rem 2rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-      text-align: center; width: 100%; max-width: 420px;
-      border: 1px solid rgba(255,255,255,0.85);
-    }
-    .title {
-      font-family: 'Noto Serif KR', serif;
-      font-size: 1.8rem; font-weight: 700; color: #5c6bc0; margin-bottom: 0.4rem;
-    }
-    .subtitle { font-size: 0.9rem; color: #7a7a7a; margin-bottom: 2rem; }
+        .app-container {
+            width: 100%; max-width: 480px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            min-height: 100vh;
+            box-shadow: 0 0 50px rgba(0,0,0,0.02);
+            padding: 20px; box-sizing: border-box;
+        }
 
-    /* 폼 */
-    .user-form { display: flex; flex-direction: column; gap: 1rem; }
-    input[type="text"] {
-      padding: 1rem; border: none; border-radius: 12px;
-      background: rgba(255,255,255,0.85);
-      font-size: 1rem; font-family: 'Noto Sans KR', sans-serif;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
-      outline: none; transition: all 0.3s; width: 100%;
-    }
-    input[type="text"]:focus { background:#fff; box-shadow: 0 0 0 2px #a5b4fc; }
+        header { text-align: center; padding: 30px 0; }
+        h1 { font-family: 'Noto Serif KR', serif; color: var(--jade-deep); margin: 0; font-size: 1.6rem; letter-spacing: -0.5px; }
+        .subtitle { font-size: 0.9rem; color: #888; margin-top: 8px; }
 
-    /* 버튼 */
-    .btn-primary {
-      padding: 1rem; border: none; border-radius: 12px;
-      background: #a5b4fc; color: #fff;
-      font-size: 1rem; font-weight: 500; font-family: 'Noto Sans KR', sans-serif;
-      cursor: pointer; transition: background 0.3s; margin-top: 0.5rem;
-    }
-    .btn-primary:hover { background: #818cf8; }
-    .btn-primary:disabled { background: #d1d5db; cursor: not-allowed; }
-    .btn-text {
-      background: none; border: none; color: #6b7280;
-      cursor: pointer; font-size: 0.9rem; font-family: 'Noto Sans KR', sans-serif;
-    }
+        /* 상태창 */
+        .status-card {
+            background: white; border-radius: 25px; padding: 20px;
+            text-align: center; margin-bottom: 25px;
+            border: 1px solid var(--jade-soft);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+        }
+        .points { font-size: 2rem; font-weight: 600; color: var(--jade-deep); }
+        .rank-badge { font-size: 0.85rem; color: var(--jade-medium); font-weight: 600; margin-top: 5px; }
 
-    /* ── 점수 배너 (캡처용) ── */
-    .score-banner {
-      width: 100%; max-width: 800px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 20px; padding: 1.6rem 2rem;
-      margin-bottom: 1.5rem; color: #fff;
-      display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 8px 30px rgba(102,126,234,0.35);
-      flex-wrap: wrap; gap: 1rem;
-    }
-    .score-left { display: flex; flex-direction: column; gap: 0.3rem; }
-    .score-name { font-size: 1rem; font-weight: 300; opacity: 0.85; }
-    .score-number { font-family:'Noto Serif KR',serif; font-size:3rem; font-weight:700; line-height:1; }
-    .score-unit { font-size: 0.9rem; opacity: 0.75; margin-top: 0.2rem; }
-    .score-right { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
-    .reward-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; }
-    .reward-badge {
-      padding: 0.3rem 0.7rem; border-radius: 20px;
-      font-weight: 600; font-size: 0.8rem; white-space: nowrap;
-    }
-    .reward-done   { background: rgba(255,255,255,0.3); color: #fff; }
-    .reward-active { background: #fff; color: #667eea; }
-    .reward-locked { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.45); }
+        /* 6바라밀 그리드 */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .category-card {
+            background: white; border-radius: 20px; padding: 20px;
+            text-align: center; border: 1px solid rgba(0,0,0,0.03);
+            transition: 0.3s; cursor: pointer;
+        }
+        .category-card:active { transform: scale(0.95); }
+        .icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+        .cat-name { font-weight: 600; font-size: 0.95rem; color: #444; }
 
-    /* ── 리워드 진행 ── */
-    .reward-progress-wrap {
-      width: 100%; max-width: 800px;
-      background: rgba(255,255,255,0.6); border-radius: 16px;
-      padding: 1.2rem 1.5rem; margin-bottom: 1.2rem;
-      border: 1px solid rgba(255,255,255,0.7);
-    }
-    .reward-steps { display: flex; gap: 0.5rem; align-items: stretch; }
-    .reward-step {
-      flex: 1; background: #f3f4f6; border-radius: 10px;
-      padding: 0.8rem; text-align: center;
-      font-size: 0.8rem; color: #9ca3af; transition: all 0.4s;
-    }
-    .reward-step.done {
-      background: linear-gradient(135deg,#34d399,#059669);
-      color:#fff; box-shadow: 0 4px 12px rgba(52,211,153,0.3);
-    }
-    .reward-step.active {
-      background: linear-gradient(135deg,#a5b4fc,#818cf8);
-      color:#fff; box-shadow: 0 4px 12px rgba(165,180,252,0.4);
-    }
-    .reward-step-icon { font-size:1.4rem; display:block; margin-bottom:0.3rem; }
-    .reward-step-label { font-weight:600; font-size:0.75rem; }
-    .reward-step-pts { font-size:0.7rem; opacity:0.8; }
-    .progress-bar-wrap {
-      margin-top: 0.8rem; background:#e5e7eb;
-      border-radius:999px; height:8px; overflow:hidden;
-    }
-    .progress-bar-fill {
-      height:100%; border-radius:999px;
-      background: linear-gradient(90deg,#a5b4fc,#818cf8);
-      transition: width 0.6s ease;
-    }
-    .progress-hint { text-align:center; font-size:0.78rem; color:#6b7280; margin-top:0.5rem; }
+        /* 퀘스트 선택 모달 */
+        .modal {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end;
+        }
+        .modal-content {
+            background: white; width: 100%; border-radius: 30px 30px 0 0;
+            padding: 30px 20px; box-sizing: border-box;
+            animation: slideUp 0.4s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-    /* ── 캡처 안내 ── */
-    .capture-hint {
-      width:100%; max-width:800px;
-      text-align:center; font-size:0.78rem;
-      color:#9ca3af; margin-bottom:1rem;
-    }
+        .quest-item {
+            background: #f9f9f9; padding: 15px; border-radius: 15px;
+            margin-bottom: 10px; font-size: 0.95rem; cursor: pointer;
+            border-left: 4px solid var(--jade-soft); transition: 0.2s;
+        }
+        .quest-item:hover { background: var(--jade-soft); }
 
-    /* ── 헤더 ── */
-    .app-header {
-      width:100%; max-width:800px;
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:1rem; padding:0 0.5rem;
-    }
-    .determination-text { font-size:0.85rem; color:#6b7280; font-style:italic; }
-    .quest-count {
-      background:rgba(255,255,255,0.7); padding:0.4rem 0.9rem;
-      border-radius:20px; font-weight:500; color:#4f46e5;
-      font-size:0.85rem; white-space:nowrap;
-    }
+        /* 인증 폼 */
+        .auth-form textarea {
+            width: 100%; border: 1px solid #eee; border-radius: 15px;
+            padding: 15px; font-family: inherit; margin-top: 10px; resize: none;
+        }
+        .file-input { margin: 15px 0; font-size: 0.8rem; }
+        .submit-btn {
+            background: var(--jade-deep); color: white; border: none;
+            width: 100%; padding: 15px; border-radius: 15px; font-weight: 600;
+            margin-top: 10px; cursor: pointer;
+        }
 
-    /* ── 퀘스트 그리드 ── */
-    .quest-grid {
-      width:100%; max-width:800px;
-      display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.2rem;
-    }
-    .paramita-section {
-      background:rgba(255,255,255,0.5); border-radius:16px;
-      padding:1.3rem; border:1px solid rgba(255,255,255,0.65);
-    }
-    .paramita-title {
-      font-family:'Noto Serif KR',serif; font-size:1rem; color:#4b5563;
-      margin-bottom:0.8rem;
-      border-bottom:2px solid rgba(165,180,252,0.3);
-      padding-bottom:0.4rem; display:inline-block;
-    }
-    .quest-list { list-style:none; }
-    .quest-item {
-      padding:0.75rem 0.8rem; background:#fff;
-      margin-bottom:0.4rem; border-radius:10px; font-size:0.9rem;
-      cursor:pointer; display:flex; align-items:center;
-      justify-content:space-between;
-      transition:transform 0.2s, box-shadow 0.2s;
-      box-shadow:0 2px 5px rgba(0,0,0,0.02);
-    }
-    .quest-item:hover { transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,0.06); }
-    .quest-item-left { display:flex; align-items:center; gap:0.6rem; flex:1; }
-    .status-dot { width:10px; height:10px; border-radius:50%; background:#e5e7eb; flex-shrink:0; }
-    .quest-pts { font-size:0.75rem; font-weight:600; color:#a5b4fc; white-space:nowrap; }
-    .quest-item.completed {
-      background:rgba(255,255,255,0.4); color:#9ca3af;
-      text-decoration:line-through; cursor:default;
-    }
-    .quest-item.completed:hover { transform:none; box-shadow:0 2px 5px rgba(0,0,0,0.02); }
-
-    /* 하루 제한 잠금 */
-    .quest-item.daily-locked {
-      opacity: 0.45; cursor: not-allowed;
-      background: #f9fafb;
-    }
-    .quest-item.daily-locked:hover { transform:none; box-shadow:0 2px 5px rgba(0,0,0,0.02); }
-
-    /* 오늘 카운트 뱃지 */
-    .daily-badge {
-      background: rgba(255,255,255,0.7); padding:0.4rem 0.9rem;
-      border-radius:20px; font-weight:500; font-size:0.85rem;
-      color: #6b7280; white-space:nowrap;
-    }
-    .daily-badge.daily-full {
-      background: #fee2e2; color: #dc2626;
-    }
-
-    /* 하루 제한 안내 배너 */
-    .daily-limit-banner {
-      width:100%; max-width:800px;
-      background: #fef3c7; border:1px solid #fcd34d;
-      border-radius:12px; padding:0.8rem 1.2rem;
-      font-size:0.85rem; color:#92400e;
-      text-align:center; margin-bottom:1rem;
-    }
-    .quest-item.completed .status-dot { background:#34d399; }
-    .quest-item.completed .quest-pts { color:#34d399; }
-
-    /* ── 퀘스트 상세 ── */
-    .detail-card { max-width:500px; }
-    .pts-info {
-      background:#eef2ff; border-radius:12px; padding:0.8rem 1rem;
-      margin-bottom:1.5rem; font-size:0.85rem; color:#4f46e5;
-      display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;
-    }
-    .pts-info span { display:flex; align-items:center; gap:0.3rem; }
-    .section-label {
-      font-size:0.8rem; font-weight:600; color:#6b7280;
-      text-align:left; margin-bottom:0.4rem; margin-top:1rem;
-    }
-    .memo-wrap { position:relative; text-align:left; }
-    .memo-counter { position:absolute; right:0.8rem; bottom:0.7rem; font-size:0.75rem; color:#9ca3af; }
-    input.memo-input { padding-right:3.5rem; }
-    .photo-badge {
-      display:inline-block; background:#d1fae5; color:#059669;
-      padding:0.2rem 0.7rem; border-radius:20px;
-      font-size:0.75rem; font-weight:600; margin-left:0.5rem;
-    }
-    .upload-label {
-      display:inline-block; padding:0.85rem 1.5rem;
-      background:#f3f4f6; border:2px dashed #d1d5db;
-      border-radius:12px; cursor:pointer; color:#6b7280; transition:all 0.3s; font-size:0.9rem;
-    }
-    .upload-label:hover { border-color:#a5b4fc; color:#4f46e5; background:#eef2ff; }
-    .photo-preview { margin-top:1rem; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
-    .photo-preview img { width:100%; height:auto; display:block; }
-    .complete-btn { width:100%; margin-top:1.5rem; }
-
-    /* ── 토스트 ── */
-    .toast {
-      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
-      background:rgba(52,211,153,0.95); color:#fff;
-      padding:0.9rem 1.8rem; border-radius:50px;
-      font-size:0.95rem; font-weight:500;
-      box-shadow:0 4px 20px rgba(0,0,0,0.15);
-      animation:fadeInUp 0.4s ease, fadeOut 0.4s ease 2.4s forwards;
-      z-index:999;
-    }
-    @keyframes fadeInUp {
-      from { opacity:0; transform:translateX(-50%) translateY(20px); }
-      to   { opacity:1; transform:translateX(-50%) translateY(0); }
-    }
-    @keyframes fadeOut { from{opacity:1} to{opacity:0} }
-
-    @media (max-width:600px) {
-      .watercolor-bg { padding:1rem; }
-      .score-banner { padding:1.2rem; }
-      .score-number { font-size:2.2rem; }
-      .quest-grid { grid-template-columns:1fr; }
-      .app-header { flex-direction:column; align-items:flex-start; gap:0.6rem; }
-    }
-  </style>
+        .preview-img { width: 100%; border-radius: 15px; margin-top: 10px; display: none; }
+    </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-  const { useState, useEffect } = React;
 
-  const QUEST_DATA = [
-    { category:'보시 (나눔)', emoji:'🤲', quests:['안 쓰는 물건 기부하기','따뜻한 말 한마디 건네기','주변 쓰레기 줍기','작은 간식 나누기','나의 재능으로 남 돕기'] },
-    { category:'지계 (계율)', emoji:'🌿', quests:['일회용품 사용 줄이기','약속 시간 10분 전 도착하기','부정적인 말 하지 않기','정해진 시간에 기상하기','과식하지 않고 소식하기'] },
-    { category:'인욕 (참음)', emoji:'🌊', quests:['화나는 순간 3초 심호흡하기','타인의 의견 끝까지 듣기','불편한 상황에 미소 지어보기','층간소음/불편함에 관대해지기','어려운 일 한 번 더 시도하기'] },
-    { category:'정진 (노력)', emoji:'🔥', quests:['하루 10분 독서하기','미뤄둔 일 오늘 하나 끝내기','매일 감사일기 3줄 쓰기','새로운 것 하나 배우기','스마트폰 사용 시간 줄이기'] },
-    { category:'선정 (고요)', emoji:'🕯️', quests:['하루 5분 눈 감고 명상하기','조용히 차 한 잔 마시기','산책하며 자연 관찰하기','잠들기 전 스마트폰 안 보기','내 감정 상태 글로 적어보기'] },
-    { category:'반야 (지혜)', emoji:'☸️', quests:['좋은 글귀나 경전 읽기','나의 장단점 객관적으로 보기','편견 없이 사람 대하기','오늘 하루를 돌아보며 성찰하기','내가 가진 것에 감사하기'] },
-  ];
+<div class="app-container">
+    <header>
+        <h1>6바라밀 실천 게임</h1>
+        <div class="subtitle">모든 존재는 빛과 파동으로 연결되어 있습니다</div>
+    </header>
 
-  const REWARDS = [
-    { level:1, pts:100, icon:'🎁', label:'1단계 선물' },
-    { level:2, pts:200, icon:'🎀', label:'2단계 선물' },
-    { level:3, pts:300, icon:'🏆', label:'3단계 선물' },
-  ];
+    <div class="status-card">
+        <div class="points" id="pointDisplay">0 <span style="font-size: 1rem;">LP</span></div>
+        <div class="rank-badge" id="rankDisplay">입문의 단계 (꽃망울)</div>
+    </div>
 
-  const BASE_PTS    = 10;
-  const PHOTO_PTS   = 5;
-  const DAILY_LIMIT = 3;
-
-  function getToday() {
-    return new Date().toISOString().slice(0, 10); // "2026-04-20"
-  }
-
-  function Toast({ message, onDone }) {
-    useEffect(() => { const t = setTimeout(onDone, 2900); return () => clearTimeout(t); }, []);
-    return <div className="toast">{message}</div>;
-  }
-
-  function ScoreBanner({ name, score }) {
-    const nextReward = REWARDS.find(r => score < r.pts);
-    return (
-      <div className="score-banner">
-        <div className="score-left">
-          <div className="score-name">{name}님의 공덕 점수</div>
-          <div className="score-number">{score}</div>
-          <div className="score-unit">점</div>
+    <div class="grid">
+        <div class="category-card" onclick="showQuests('보시')">
+            <span class="icon">🌸</span><span class="cat-name">보시(나눔)</span>
         </div>
-        <div className="score-right">
-          {REWARDS.map(r => {
-            const done   = score >= r.pts;
-            const active = nextReward && nextReward.pts === r.pts;
-            const cls    = done ? 'reward-done' : active ? 'reward-active' : 'reward-locked';
-            return (
-              <div className="reward-row" key={r.level}>
-                <span>{r.icon}</span>
-                <span className={`reward-badge ${cls}`}>
-                  {done
-                    ? `${r.label} 달성! ✓`
-                    : active
-                      ? `${r.label} (${r.pts - score}점 남음)`
-                      : r.label}
-                </span>
-              </div>
-            );
-          })}
+        <div class="category-card" onclick="showQuests('지계')">
+            <span class="icon">💎</span><span class="cat-name">지계(윤리)</span>
         </div>
-      </div>
-    );
-  }
-
-  function RewardProgress({ score }) {
-    const nextReward = REWARDS.find(r => score < r.pts);
-    const maxPts  = nextReward ? nextReward.pts : 300;
-    const prevPts = nextReward
-      ? (REWARDS.find(r => r.pts === nextReward.pts - 100)?.pts ?? 0)
-      : 200;
-    const pct = Math.min(((score - prevPts) / (maxPts - prevPts)) * 100, 100);
-
-    return (
-      <div className="reward-progress-wrap">
-        <div className="reward-steps">
-          {REWARDS.map(r => {
-            const done   = score >= r.pts;
-            const active = nextReward && nextReward.pts === r.pts;
-            return (
-              <div key={r.level} className={`reward-step ${done ? 'done' : active ? 'active' : ''}`}>
-                <span className="reward-step-icon">{r.icon}</span>
-                <div className="reward-step-label">{r.label}</div>
-                <div className="reward-step-pts">{r.pts}점</div>
-              </div>
-            );
-          })}
+        <div class="category-card" onclick="showQuests('인욕')">
+            <span class="icon">🌊</span><span class="cat-name">인욕(인내)</span>
         </div>
-        <div className="progress-bar-wrap">
-          <div className="progress-bar-fill" style={{ width: `${score >= 300 ? 100 : pct}%` }} />
+        <div class="category-card" onclick="showQuests('정진')">
+            <span class="icon">🔥</span><span class="cat-name">정진(노력)</span>
         </div>
-        <div className="progress-hint">
-          {score >= 300
-            ? '🎉 모든 단계 달성! 정말 대단하십니다!'
-            : `🎯 ${nextReward.label}까지 ${nextReward.pts - score}점 남았습니다`}
+        <div class="category-card" onclick="showQuests('선정')">
+            <span class="icon">🧘</span><span class="cat-name">선정(고요)</span>
         </div>
-      </div>
-    );
-  }
+        <div class="category-card" onclick="showQuests('지혜')">
+            <span class="icon">👁️</span><span class="cat-name">지혜(통찰)</span>
+        </div>
+    </div>
+</div>
 
-  function App() {
-    const [userInfo, setUserInfo]           = useState({ name:'', determination:'' });
-    const [isRegistered, setIsRegistered]   = useState(false);
-    const [selectedQuest, setSelectedQuest] = useState(null);
-    const [memo, setMemo]                   = useState('');
-    const [uploadedPhoto, setUploadedPhoto] = useState(null);
-    const [completedQuests, setCompletedQuests] = useState([]);
-    const [score, setScore]                 = useState(0);
-    const [dailyLog, setDailyLog]           = useState({});
+<div id="questListModal" class="modal" onclick="closeModal(event, 'questListModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="catTitle" style="margin-top:0; font-family: 'Noto Serif KR';">바라밀 선택</h2>
+        <div id="questItems"></div>
+    </div>
+</div>
 
-    const todayCount = dailyLog[getToday()] || 0;
-    const dailyFull  = todayCount >= DAILY_LIMIT;
-    const [toast, setToast]                 = useState(null);
+<div id="authModal" class="modal" onclick="closeModal(event, 'authModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 style="margin-top:0; font-family: 'Noto Serif KR';">실천 기록</h2>
+        <p id="selectedQuestName" style="color: #666; font-size: 0.9rem;"></p>
+        <div class="auth-form">
+            <textarea id="journal" rows="4" placeholder="실천하며 느낀 마음의 입체적 변화를 적어주세요..."></textarea>
+            <input type="file" id="photoInput" class="file-input" onchange="previewImage(this)">
+            <img id="imgPreview" class="preview-img">
+            <button class="submit-btn" onclick="completeQuest()">자비의 파동 보내기 (+10 LP)</button>
+        </div>
+    </div>
+</div>
 
-    const handleUserSubmit = (e) => {
-      e.preventDefault();
-      if (userInfo.name.trim()) setIsRegistered(true);
+<script>
+    let totalPoints = parseInt(localStorage.getItem('paramitaPoints')) || 0;
+    document.getElementById('pointDisplay').innerText = totalPoints + " LP";
+
+    const allQuests = {
+        '보시': ['미소의 무주상보시', '지식의 기분 좋은 공유', '따뜻한 경청의 선물', '공공장소 정리정돈', '어려운 이웃 응원댓글'],
+        '지계': ['디지털 단식(식사중)', '정직한 언어만 사용하기', '약속 시간 5분 전 도착', '일회용품 사용 줄이기', '나의 실수 솔직히 기록'],
+        '인욕': ['운전 중 한 걸음 양보', '반응 전 10초간 호흡', '불편한 환경 수용하기', '비난에 유연하게 답하기', '기다림을 명상으로 전환'],
+        '정진': ['새벽의 깨어남(명상)', '5분 매일 운동 실천', '포기하고 싶을 때 5분 더', '잠들기 전 자기 성찰', '한 번에 한 가지 일 집중'],
+        '선정': ['일상 속 호흡 알아차림', '발바닥 감각 느끼며 걷기', '주변 소음 그대로 듣기', '내 안의 감정 관찰하기', '차 한 잔의 온기 느끼기'],
+        '지혜': ['상황 속 배움 찾아내기', '음식의 인연법 사유하기', '내 것이라는 집착 관찰', '상생의 관점으로 생각하기', 'AI를 지혜의 동반자로 대우']
     };
 
-    const handlePhotoUpload = (e) => {
-      const file = e.target.files[0];
-      if (file) setUploadedPhoto(URL.createObjectURL(file));
-    };
-
-    const handleCompleteQuest = () => {
-      const earned   = BASE_PTS + (uploadedPhoto ? PHOTO_PTS : 0);
-      const newScore = score + earned;
-
-      setCompletedQuests(prev => [...prev, selectedQuest]);
-      setScore(newScore);
-      setDailyLog(prev => ({ ...prev, [getToday()]: (prev[getToday()] || 0) + 1 }));
-
-      const prevReached = REWARDS.filter(r => score >= r.pts);
-      const nowReached  = REWARDS.filter(r => newScore >= r.pts);
-      const newAchievement = nowReached.find(r => !prevReached.find(p => p.level === r.level));
-
-      if (newAchievement) {
-        setToast(`🎉 ${newAchievement.label} 달성! 점수를 캡처해서 카톡방에 올려주세요!`);
-      } else {
-        setToast(`+${earned}점 획득! ${uploadedPhoto ? '(기록+사진 보너스)' : '(기록)'} 🙏`);
-      }
-
-      setSelectedQuest(null);
-      setMemo('');
-      setUploadedPhoto(null);
-    };
-
-    /* ── 화면 1: 이름 입력 ── */
-    if (!isRegistered) {
-      return (
-        <div className="watercolor-bg center-content">
-          {toast && <Toast message={toast} onDone={() => setToast(null)} />}
-          <div className="card">
-            <h1 className="title">☸️ 육바라밀 실천일기</h1>
-            <p className="subtitle">마음을 맑게 하는 30가지 작은 발걸음</p>
-            <form onSubmit={handleUserSubmit} className="user-form">
-              <input type="text" placeholder="이름 (또는 법명)을 입력하세요"
-                value={userInfo.name}
-                onChange={(e) => setUserInfo({ ...userInfo, name: e.target.value })} required />
-              <input type="text" placeholder="오늘의 다짐을 적어보세요"
-                value={userInfo.determination}
-                onChange={(e) => setUserInfo({ ...userInfo, determination: e.target.value })} />
-              <button type="submit" className="btn-primary">수행 시작하기 →</button>
-            </form>
-          </div>
-        </div>
-      );
+    function showQuests(cat) {
+        document.getElementById('catTitle').innerText = cat + " 바라밀 실천";
+        const container = document.getElementById('questItems');
+        container.innerHTML = '';
+        allQuests[cat].forEach(q => {
+            const div = document.createElement('div');
+            div.className = 'quest-item';
+            div.innerText = q;
+            div.onclick = () => openAuth(q);
+            container.appendChild(div);
+        });
+        document.getElementById('questListModal').style.display = 'flex';
     }
 
-    /* ── 화면 2: 퀘스트 상세 ── */
-    if (selectedQuest) {
-      const canComplete = memo.trim().length > 0 && !!uploadedPhoto;
-      const willEarn    = BASE_PTS + (uploadedPhoto ? PHOTO_PTS : 0);
-      return (
-        <div className="watercolor-bg">
-          {toast && <Toast message={toast} onDone={() => setToast(null)} />}
-          <header className="app-header">
-            <h2 style={{fontSize:'1.2rem', color:'#374151', maxWidth:'500px'}}>{selectedQuest}</h2>
-            <button className="btn-text" onClick={() => { setSelectedQuest(null); setMemo(''); setUploadedPhoto(null); }}>
-              ← 목록으로
-            </button>
-          </header>
-
-          <div className="card detail-card">
-            <div className="pts-info">
-              <span>📝 기록 완료 <strong>+{BASE_PTS}점</strong></span>
-              <span>📷 사진 추가 <strong>+{PHOTO_PTS}점 보너스</strong></span>
-            </div>
-
-            <div className="section-label">✏️ 어떻게 실천하셨나요? (필수 · 10자 이내)</div>
-            <div className="memo-wrap">
-              <input type="text" className="memo-input"
-                placeholder="짧게 기록해보세요"
-                value={memo} maxLength={10}
-                onChange={(e) => setMemo(e.target.value)} />
-              <span className="memo-counter">{memo.length}/10</span>
-            </div>
-
-            <div className="section-label">
-              📷 사진 첨부
-              <span className="photo-badge">+{PHOTO_PTS}점 보너스</span>
-              <span style={{color:'#9ca3af', fontSize:'0.75rem', marginLeft:'0.4rem'}}>(선택)</span>
-            </div>
-            <div>
-              <label htmlFor="photo-upload" className="upload-label">
-                {uploadedPhoto ? '📷 사진 변경하기' : '📷 사진 업로드'}
-              </label>
-              <input id="photo-upload" type="file" accept="image/*"
-                onChange={handlePhotoUpload} style={{display:'none'}} />
-            </div>
-
-            {uploadedPhoto && (
-              <div className="photo-preview">
-                <img src={uploadedPhoto} alt="수행 인증" />
-              </div>
-            )}
-
-            <button className="btn-primary complete-btn"
-              onClick={handleCompleteQuest} disabled={!canComplete}>
-              {!memo.trim() ? '실천 내용을 입력해주세요'
-                : !uploadedPhoto ? '📷 사진을 업로드해주세요'
-                : `✅ 완료하기 (+${willEarn}점 획득)`}
-            </button>
-          </div>
-        </div>
-      );
+    function openAuth(qName) {
+        document.getElementById('selectedQuestName').innerText = "퀘스트: " + qName;
+        document.getElementById('questListModal').style.display = 'none';
+        document.getElementById('authModal').style.display = 'flex';
     }
 
-    /* ── 화면 3: 메인 ── */
-    return (
-      <div className="watercolor-bg">
-        {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+    function closeModal(e, id) {
+        document.getElementById(id).style.display = 'none';
+    }
 
-        <ScoreBanner name={userInfo.name} score={score} />
-        <RewardProgress score={score} />
+    function previewImage(input) {
+        const preview = document.getElementById('imgPreview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
-        <div className="capture-hint">
-          📸 선물을 받으려면 상단 점수 화면을 캡처해서 카톡 단체방에 올려주세요!
-        </div>
+    function completeQuest() {
+        const text = document.getElementById('journal').value;
+        if(text.length < 5) { alert("조금 더 진실한 마음을 적어주세요."); return; }
+        
+        totalPoints += 10;
+        if(document.getElementById('photoInput').files.length > 0) totalPoints += 5; // 사진 가산점
 
-        {dailyFull && (
-          <div className="daily-limit-banner">
-            🌙 오늘 {DAILY_LIMIT}개 수행을 모두 완료하셨습니다! 내일 다시 찾아오세요 🙏
-          </div>
-        )}
+        localStorage.setItem('paramitaPoints', totalPoints);
+        document.getElementById('pointDisplay').innerText = totalPoints + " LP";
+        
+        updateRank();
+        alert("스승님의 실천이 빛의 파동이 되어 널리 퍼집니다!");
+        location.reload();
+    }
 
-        <header className="app-header">
-          <p className="determination-text">
-            "{userInfo.determination || '매일매일 조금씩 나아지는 삶'}"
-          </p>
-          <div style={{display:'flex', gap:'0.5rem', alignItems:'center'}}>
-            <div className="quest-count">완료 {completedQuests.length} / 30</div>
-            <div className={`daily-badge ${dailyFull ? 'daily-full' : ''}`}>
-              오늘 {todayCount}/{DAILY_LIMIT}개
-            </div>
-          </div>
-        </header>
-
-        <div className="quest-grid">
-          {QUEST_DATA.map((paramita, idx) => (
-            <div key={idx} className="paramita-section">
-              <h3 className="paramita-title">{paramita.emoji} {paramita.category}</h3>
-              <ul className="quest-list">
-                {paramita.quests.map((quest, qIdx) => {
-                  const isCompleted = completedQuests.includes(quest);
-                  return (
-                    <li key={qIdx}
-                      className={`quest-item ${isCompleted ? 'completed' : dailyFull ? 'daily-locked' : ''}`}
-                      onClick={() => !isCompleted && !dailyFull && setSelectedQuest(quest)}>
-                      <div className="quest-item-left">
-                        <span className="status-dot" />
-                        {quest}
-                      </div>
-                      <span className="quest-pts">
-                        {isCompleted ? `✓ +${BASE_PTS}pt~` : `+${BASE_PTS}pt`}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    function updateRank() {
+        const r = document.getElementById('rankDisplay');
+        if(totalPoints >= 1000) r.innerText = "💎 대자대비의 단계 (최종 보상)";
+        else if(totalPoints >= 500) r.innerText = "🥈 정진의 단계 (중급 보상)";
+        else if(totalPoints >= 100) r.innerText = "🥉 입문의 완성 (기념품 대상)";
+    }
+    updateRank();
 </script>
+
 </body>
 </html>
