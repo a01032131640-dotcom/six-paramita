@@ -20,7 +20,6 @@
             margin: 0; padding: 0;
             display: flex; justify-content: center;
             min-height: 100vh;
-            /* 은은한 수채화 번짐 효과 */
             background-image: 
                 radial-gradient(circle at 0% 0%, rgba(128, 203, 196, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 100% 100%, rgba(248, 187, 208, 0.1) 0%, transparent 40%);
@@ -28,28 +27,42 @@
 
         .app-container {
             width: 100%; max-width: 480px;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
             min-height: 100vh;
-            box-shadow: 0 0 50px rgba(0,0,0,0.02);
             padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column;
         }
 
-        header { text-align: center; padding: 30px 0; }
-        h1 { font-family: 'Noto Serif KR', serif; color: var(--jade-deep); margin: 0; font-size: 1.6rem; letter-spacing: -0.5px; }
-        .subtitle { font-size: 0.9rem; color: #888; margin-top: 8px; }
+        /* 초기 이름 입력 오버레이 */
+        #loginOverlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: var(--bg-color); z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px; box-sizing: border-box; text-align: center;
+        }
 
-        /* 상태창 */
+        header { text-align: center; padding: 20px 0; }
+        h1 { font-family: 'Noto Serif KR', serif; color: var(--jade-deep); margin: 0; font-size: 1.6rem; }
+        .user-greeting { font-size: 1.1rem; color: var(--jade-deep); margin-top: 10px; font-weight: 600; }
+
+        /* 리워드 공지 영역 */
+        .notice-board {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px; padding: 15px; margin-bottom: 20px;
+            border: 1px dashed var(--jade-medium); font-size: 0.85rem; line-height: 1.5;
+        }
+        .notice-title { font-weight: bold; color: #d32f2f; margin-bottom: 5px; display: block; }
+
         .status-card {
             background: white; border-radius: 25px; padding: 20px;
-            text-align: center; margin-bottom: 25px;
+            text-align: center; margin-bottom: 20px;
             border: 1px solid var(--jade-soft);
             box-shadow: 0 10px 20px rgba(0,0,0,0.03);
         }
         .points { font-size: 2rem; font-weight: 600; color: var(--jade-deep); }
         .rank-badge { font-size: 0.85rem; color: var(--jade-medium); font-weight: 600; margin-top: 5px; }
 
-        /* 6바라밀 그리드 */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .category-card {
             background: white; border-radius: 20px; padding: 20px;
@@ -57,10 +70,7 @@
             transition: 0.3s; cursor: pointer;
         }
         .category-card:active { transform: scale(0.95); }
-        .icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
-        .cat-name { font-weight: 600; font-size: 0.95rem; color: #444; }
 
-        /* 퀘스트 선택 모달 */
         .modal {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.4); z-index: 1000; align-items: flex-end;
@@ -72,152 +82,134 @@
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
+        input, textarea, button {
+            width: 100%; border: 1px solid #eee; border-radius: 15px;
+            padding: 15px; font-family: inherit; margin-top: 10px; box-sizing: border-box;
+        }
+        .submit-btn {
+            background: var(--jade-deep); color: white; border: none;
+            font-weight: 600; cursor: pointer;
+        }
         .quest-item {
             background: #f9f9f9; padding: 15px; border-radius: 15px;
             margin-bottom: 10px; font-size: 0.95rem; cursor: pointer;
-            border-left: 4px solid var(--jade-soft); transition: 0.2s;
         }
-        .quest-item:hover { background: var(--jade-soft); }
-
-        /* 인증 폼 */
-        .auth-form textarea {
-            width: 100%; border: 1px solid #eee; border-radius: 15px;
-            padding: 15px; font-family: inherit; margin-top: 10px; resize: none;
-        }
-        .file-input { margin: 15px 0; font-size: 0.8rem; }
-        .submit-btn {
-            background: var(--jade-deep); color: white; border: none;
-            width: 100%; padding: 15px; border-radius: 15px; font-weight: 600;
-            margin-top: 10px; cursor: pointer;
-        }
-
-        .preview-img { width: 100%; border-radius: 15px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
+<div id="loginOverlay">
+    <h2 style="font-family: 'Noto Serif KR'; color: var(--jade-deep);">수행자 등록</h2>
+    <p style="color: #666; font-size: 0.9rem;">실천의 여정을 기록할 이름(또는 법명)을 입력해 주세요.</p>
+    <input type="text" id="userNameInput" placeholder="이름을 입력하세요">
+    <button class="submit-btn" onclick="registerUser()">수행 시작하기</button>
+</div>
+
 <div class="app-container">
     <header>
         <h1>6바라밀 실천 게임</h1>
-        <div class="subtitle">모든 존재는 빛과 파동으로 연결되어 있습니다</div>
+        <div id="greeting" class="user-greeting"></div>
     </header>
+
+    <div class="notice-board">
+        <span class="notice-title">📢 리워드 안내 (주최 측 공지)</span>
+        • <b>1단계 (100 LP):</b> 수행 입문 기념품 증정<br>
+        • <b>2단계 (200 LP):</b> 실천가 전용 에코백 또는 굿즈<br>
+        • <b>3단계 (300 LP):</b> 프리미엄 다기 세트 또는 명상 프로그램 초대권
+    </div>
 
     <div class="status-card">
         <div class="points" id="pointDisplay">0 <span style="font-size: 1rem;">LP</span></div>
-        <div class="rank-badge" id="rankDisplay">입문의 단계 (꽃망울)</div>
+        <div class="rank-badge" id="rankDisplay">꽃망울을 터뜨릴 준비 중</div>
     </div>
 
     <div class="grid">
-        <div class="category-card" onclick="showQuests('보시')">
-            <span class="icon">🌸</span><span class="cat-name">보시(나눔)</span>
-        </div>
-        <div class="category-card" onclick="showQuests('지계')">
-            <span class="icon">💎</span><span class="cat-name">지계(윤리)</span>
-        </div>
-        <div class="category-card" onclick="showQuests('인욕')">
-            <span class="icon">🌊</span><span class="cat-name">인욕(인내)</span>
-        </div>
-        <div class="category-card" onclick="showQuests('정진')">
-            <span class="icon">🔥</span><span class="cat-name">정진(노력)</span>
-        </div>
-        <div class="category-card" onclick="showQuests('선정')">
-            <span class="icon">🧘</span><span class="cat-name">선정(고요)</span>
-        </div>
-        <div class="category-card" onclick="showQuests('지혜')">
-            <span class="icon">👁️</span><span class="cat-name">지혜(통찰)</span>
-        </div>
+        <div class="category-card" onclick="showQuests('보시')">🌸 보시</div>
+        <div class="category-card" onclick="showQuests('지계')">💎 지계</div>
+        <div class="category-card" onclick="showQuests('인욕')">🌊 인욕</div>
+        <div class="category-card" onclick="showQuests('정진')">🔥 정진</div>
+        <div class="category-card" onclick="showQuests('선정')">🧘 선정</div>
+        <div class="category-card" onclick="showQuests('지혜')">👁️ 지혜</div>
     </div>
 </div>
 
-<div id="questListModal" class="modal" onclick="closeModal(event, 'questListModal')">
+<div id="questListModal" class="modal" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 id="catTitle" style="margin-top:0; font-family: 'Noto Serif KR';">바라밀 선택</h2>
+        <h2 id="catTitle"></h2>
         <div id="questItems"></div>
     </div>
 </div>
 
-<div id="authModal" class="modal" onclick="closeModal(event, 'authModal')">
+<div id="authModal" class="modal" onclick="this.style.display='none'">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 style="margin-top:0; font-family: 'Noto Serif KR';">실천 기록</h2>
-        <p id="selectedQuestName" style="color: #666; font-size: 0.9rem;"></p>
-        <div class="auth-form">
-            <textarea id="journal" rows="4" placeholder="실천하며 느낀 마음의 입체적 변화를 적어주세요..."></textarea>
-            <input type="file" id="photoInput" class="file-input" onchange="previewImage(this)">
-            <img id="imgPreview" class="preview-img">
-            <button class="submit-btn" onclick="completeQuest()">자비의 파동 보내기 (+10 LP)</button>
-        </div>
+        <h2 id="selectedQuestName"></h2>
+        <textarea id="journal" rows="4" placeholder="실천의 마음을 적어주세요..."></textarea>
+        <input type="file" id="photoInput">
+        <button class="submit-btn" onclick="completeQuest()">실천 인증 완료 (+10 LP)</button>
     </div>
 </div>
 
 <script>
+    let userName = localStorage.getItem('paramitaUser');
     let totalPoints = parseInt(localStorage.getItem('paramitaPoints')) || 0;
-    document.getElementById('pointDisplay').innerText = totalPoints + " LP";
+
+    // 초기 접속 체크
+    if (userName) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('greeting').innerText = "반갑습니다, " + userName + " 수행자님";
+    }
+
+    function registerUser() {
+        const name = document.getElementById('userNameInput').value;
+        if (name.length < 1) { alert("이름을 입력해 주세요."); return; }
+        localStorage.setItem('paramitaUser', name);
+        location.reload();
+    }
 
     const allQuests = {
-        '보시': ['미소의 무주상보시', '지식의 기분 좋은 공유', '따뜻한 경청의 선물', '공공장소 정리정돈', '어려운 이웃 응원댓글'],
-        '지계': ['디지털 단식(식사중)', '정직한 언어만 사용하기', '약속 시간 5분 전 도착', '일회용품 사용 줄이기', '나의 실수 솔직히 기록'],
-        '인욕': ['운전 중 한 걸음 양보', '반응 전 10초간 호흡', '불편한 환경 수용하기', '비난에 유연하게 답하기', '기다림을 명상으로 전환'],
-        '정진': ['새벽의 깨어남(명상)', '5분 매일 운동 실천', '포기하고 싶을 때 5분 더', '잠들기 전 자기 성찰', '한 번에 한 가지 일 집중'],
-        '선정': ['일상 속 호흡 알아차림', '발바닥 감각 느끼며 걷기', '주변 소음 그대로 듣기', '내 안의 감정 관찰하기', '차 한 잔의 온기 느끼기'],
-        '지혜': ['상황 속 배움 찾아내기', '음식의 인연법 사유하기', '내 것이라는 집착 관찰', '상생의 관점으로 생각하기', 'AI를 지혜의 동반자로 대우']
+        '보시': ['미소의 무주상보시', '따뜻한 경청의 선물', '공공장소 정리정돈'],
+        '지계': ['디지털 단식', '정직한 언어 사용', '일회용품 줄이기'],
+        '인욕': ['양보 운전/보행', '반응 전 10초 호흡', '불편함 수용하기'],
+        '정진': ['새벽 명상', '매일 운동 5분', '몰입의 기쁨'],
+        '선정': ['호흡 알아차림', '발바닥 감각 걷기', '소리 관찰하기'],
+        '지혜': ['배움 찾아내기', '인연법 사유하기', '상생의 관점']
     };
 
     function showQuests(cat) {
-        document.getElementById('catTitle').innerText = cat + " 바라밀 실천";
+        document.getElementById('catTitle').innerText = cat + " 바라밀";
         const container = document.getElementById('questItems');
         container.innerHTML = '';
         allQuests[cat].forEach(q => {
             const div = document.createElement('div');
             div.className = 'quest-item';
             div.innerText = q;
-            div.onclick = () => openAuth(q);
+            div.onclick = () => {
+                document.getElementById('selectedQuestName').innerText = q;
+                document.getElementById('questListModal').style.display = 'none';
+                document.getElementById('authModal').style.display = 'flex';
+            };
             container.appendChild(div);
         });
         document.getElementById('questListModal').style.display = 'flex';
     }
 
-    function openAuth(qName) {
-        document.getElementById('selectedQuestName').innerText = "퀘스트: " + qName;
-        document.getElementById('questListModal').style.display = 'none';
-        document.getElementById('authModal').style.display = 'flex';
-    }
-
-    function closeModal(e, id) {
-        document.getElementById(id).style.display = 'none';
-    }
-
-    function previewImage(input) {
-        const preview = document.getElementById('imgPreview');
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
     function completeQuest() {
-        const text = document.getElementById('journal').value;
-        if(text.length < 5) { alert("조금 더 진실한 마음을 적어주세요."); return; }
-        
+        if (document.getElementById('journal').value.length < 5) { alert("조금 더 자세히 적어주세요."); return; }
         totalPoints += 10;
-        if(document.getElementById('photoInput').files.length > 0) totalPoints += 5; // 사진 가산점
-
         localStorage.setItem('paramitaPoints', totalPoints);
-        document.getElementById('pointDisplay').innerText = totalPoints + " LP";
-        
-        updateRank();
-        alert("스승님의 실천이 빛의 파동이 되어 널리 퍼집니다!");
+        alert("수행이 기록되었습니다!");
         location.reload();
     }
 
     function updateRank() {
         const r = document.getElementById('rankDisplay');
-        if(totalPoints >= 1000) r.innerText = "💎 대자대비의 단계 (최종 보상)";
-        else if(totalPoints >= 500) r.innerText = "🥈 정진의 단계 (중급 보상)";
-        else if(totalPoints >= 100) r.innerText = "🥉 입문의 완성 (기념품 대상)";
+        const p = document.getElementById('pointDisplay');
+        p.innerText = totalPoints + " LP";
+        if(totalPoints >= 300) r.innerText = "💎 3단계: 대자대비의 경지 (프리미엄 상품 대상)";
+        else if(totalPoints >= 200) r.innerText = "🥈 2단계: 정진의 깊이 (에코백/굿즈 대상)";
+        else if(totalPoints >= 100) r.innerText = "🥉 1단계: 입문의 기쁨 (기념품 대상)";
     }
     updateRank();
 </script>
-
 </body>
 </html>
